@@ -1,7 +1,7 @@
 # Order_Process_System
 ## make
 ```
-cd  OrderProcessSystem
+cd OrderProcessSystem
 make
 ```
 ## run server
@@ -10,7 +10,7 @@ make
 ```
 ## run client
 ```
-./OPSClient  <N/C>   <Request Filename>
+./OPSClient <N/C>  <Request Filename>
 ```
 N代表NewOrderRequest
 
