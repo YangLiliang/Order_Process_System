@@ -10,7 +10,10 @@ make
 ```
 ## run client
 ```
-./OPSClient <N/C>  <Request Filename>
+./OPSClient <N/C> <Request Filename/OrderID>
+#example:
+./OPSClient N request1
+./OPSClient C 1
 ```
 N代表NewOrderRequest
 
