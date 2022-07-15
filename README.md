@@ -19,3 +19,7 @@ N代表NewOrderRequest
 
 C代表CancelOrderRequest
 
+## clean
+```
+make clean
+```
