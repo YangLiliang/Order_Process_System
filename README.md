@@ -1,7 +1,7 @@
 # Order_Process_System
 ## make
 ```
-cd OrderProcessSystem
+cd OrderProcessSystem_v_2
 make
 ```
 ## run server
