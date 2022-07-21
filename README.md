@@ -1,4 +1,6 @@
 # Order_Process_System
+## Order_Process_System
+The initial framework of OPS supports synchronous grpc. the system supports multi-user concurrency, but the lock granularity is large.
 ## make
 ```
 cd OrderProcessSystem_v_2
