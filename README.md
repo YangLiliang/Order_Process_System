@@ -4,7 +4,7 @@
 
 2. The system supports multi-user concurrency, but the lock granularity is large.
 ## Order_Process_System_v_2
-1. Supports synchronous grpc. 
+1. Supports sync grpc. 
 
 2. lock granularity is reduced and concurrency is increased. 
 
@@ -13,6 +13,9 @@
 4. The transaction-related api is encapsulated into a Singleton mode class that provides interfaces for the server and client.
 
 5. Client-server exit is not graceful.
+
+## Order_Process_System_async
+1. Supports async grpc. 
 ## make
 ```
 cd OrderProcessSystem_v_2
