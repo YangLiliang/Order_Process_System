@@ -1,18 +1,18 @@
 # Order_Process_System
 ## Order_Process_System
-The initial framework of OPS supports sync grpc. 
+1. The initial framework of OPS supports sync grpc. 
 
-The system supports multi-user concurrency, but the lock granularity is large.
+2. The system supports multi-user concurrency, but the lock granularity is large.
 ## Order_Process_System_v_2
-Supports synchronous grpc. 
+1. Supports synchronous grpc. 
 
-lock granularity is reduced and concurrency is increased. 
+2. lock granularity is reduced and concurrency is increased. 
 
-Server supports real-time transaction information sent to both sides of the transaction. 
+3. Server supports real-time transaction information sent to both sides of the transaction. 
 
-The transaction-related api is encapsulated into a class that provides interfaces for the server and client.
+4. The transaction-related api is encapsulated into a Singleton mode class that provides interfaces for the server and client.
 
-Client-server exit is not graceful.
+5. Client-server exit is not graceful.
 ## make
 ```
 cd OrderProcessSystem_v_2
