@@ -32,9 +32,9 @@ make
 ./OPSClient N request1
 ./OPSClient C 1
 ```
-N代表NewOrderRequest
+N represent NewOrderRequest
 
-C代表CancelOrderRequest
+C represent CancelOrderRequest
 
 ## clean
 ```
