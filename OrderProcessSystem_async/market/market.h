@@ -85,8 +85,8 @@ private:
 	std::mutex orderID_mutex, cancel_mutex;
 	// <stockID, pair<first: sell_mutex, second: buy_mutex> >
 	std::unordered_map<std::string, std::pair<std::mutex*, std::mutex*> > stock_mutex; 
-	// 订单ID对应的stream
-	// std::unordered_map<uint64_t, ServerReaderWriter<ExecutionReport, NewOrderRequest>*> orderID_stream;
+	//  用户对应的订单
+	// std::unordered_map<uint64_t, std::unordered_set<uint64_t> > clientID_orders;
 };
 //TradingMarket* TradingMarket::m_instance=new TradingMarket;
 #endif

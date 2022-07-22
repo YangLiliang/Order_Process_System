@@ -66,11 +66,13 @@ CallDataPushCancelOrder::CallDataPushCancelOrder(OrderService::AsyncService* ser
 void CallDataPushCancelOrder::Proceed(bool ok) {
 	if(status_==CREATE){
 		status_=PROCESS;
-		service_->RequestPushCancelOrder(&ctx_, &request_, &responder_, cq_, cq_, this);	
+		service_->RequestPushCancelOrder(&ctx_, &cancelOrderRequest_, &responder_, cq_, cq_, this);	
 	}else if(status_==PROCESS){
 		new CallDataPushCancelOrder(service_, cq_, tradingMarket_);
-		printRequest(request_);
-		tradingMarket_->processCancelOrder(request_,  report_);
+		printRequest(cancelOrderRequest_);
+		initReport(report_, cancelOrderRequest_);
+		tradingMarket_->processCancelOrder(cancelOrderRequest_,  report_);
+		printReport(report_);
 		status_=FINISH;
 		responder_.Finish(report_, Status::OK, this);
 	}else{
@@ -81,21 +83,25 @@ void CallDataPushCancelOrder::Proceed(bool ok) {
 
 // 服务端类
 void ServerImpl::Run(){
-	std::string server_address("0.0.0.0:50001");
+	std::string server_address("0.0.0.0:50002");
 	ServerBuilder builder;
 	builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+	// 注册服务
 	builder.RegisterService(&service_);
+	// 建立完成队列
 	cq_=builder.AddCompletionQueue();
 	server_=builder.BuildAndStart();
 	std::cout<<"Server listening on: "<<server_address<<std::endl;	
+	// 注册请求处理
 	new CallDataPushNewOrder(&service_, cq_.get(), tradingMarket);
 	new CallDataPushCancelOrder(&service_, cq_.get(), tradingMarket);
 	void* tag;
 	bool ok;
+	// 从完成队列中取出请求处理
 	while(true){
 		// 当WriteDone时ok为0
 		GPR_ASSERT(cq_->Next(&tag, &ok));
-		std::cout<<ok<<std::endl;
+		// 基类指针,根据子类执行的虚函数Proceed()
 		CommonCallData* calldata=static_cast<CommonCallData*>(tag);
 		calldata->Proceed(ok);
 	}

@@ -12,7 +12,9 @@
 #include <boost/type_traits.hpp>
 #include <cmath>
 #include <fstream>
+#include <iostream>
 #include "../helper/helper.h"
+#include "assert.h"
 
 #include <grpc++/grpc++.h>
 #include <grpc/support/log.h>
@@ -59,6 +61,7 @@ public:
 	ClientContext context;
 	Status status;
 	CallStatus callStatus;
+	ExecutionReport report_;
 	virtual void Proceed(bool = true) = 0;
 };
 
@@ -66,10 +69,9 @@ public:
 class AsyncClientCallPushCancelOrder: public AbstractAsyncClientCall{
 private:
 	std::unique_ptr<ClientAsyncResponseReader<ExecutionReport> > responder;
-	ExecutionReport report_;
 public:
 	AsyncClientCallPushCancelOrder(const CancelOrderRequest& request, CompletionQueue& cq_, std::unique_ptr<OrderService::Stub>& stub_);
-	virtual void Proceed(bool = true) override;
+	virtual void Proceed(bool ok = true) override;
 };
 
 // 提交订单类
@@ -79,10 +81,9 @@ private:
 	uint32_t counter;
 	bool writing_mode_;
 	std::vector<NewOrderRequest> requests_;
-	ExecutionReport report_;
 public:
 	AsyncClientCallPushNewOrder(std::vector<NewOrderRequest>&& requests, CompletionQueue& cq_, std::unique_ptr<OrderService::Stub>& stub_);
-	virtual void Proceed(bool = true) override;
+	virtual void Proceed(bool ok = true) override;
 };
 
 // 客户端类

@@ -49,15 +49,19 @@ void readNewOrderRequest(const std::string& fileName, std::vector<NewOrderReques
 // 撤销订单类
 AsyncClientCallPushCancelOrder::AsyncClientCallPushCancelOrder(const CancelOrderRequest& request, CompletionQueue& cq_, std::unique_ptr<OrderService::Stub>& stub_):
 	AbstractAsyncClientCall(){
-	responder=stub_->AsyncPushCancelOrder(&context, request, &cq_);
+	// responder=stub_->AsyncPushCancelOrder(&context, request, &cq_);
+	responder=stub_->PrepareAsyncPushCancelOrder(&context, request, &cq_);
+	responder->StartCall();
 	responder->Finish(&report_, &status, (void*)this);
-	printReport(report_);
+	std::cout<<status.ok()<<std::endl;
 	callStatus=PROCESS;
 }
 
 void AsyncClientCallPushCancelOrder::Proceed(bool ok){
-		if(callStatus=PROCESS){
+		if(callStatus==PROCESS){
 			GPR_ASSERT(ok);
+			if(status.ok())
+				printReport(report_);
 			// TODO
 			delete this;
 		}
@@ -106,29 +110,33 @@ void AsyncClientCallPushNewOrder::Proceed(bool ok){
 OPSClient::OPSClient(std::shared_ptr<Channel> channel):
 		stub_(OrderService::NewStub(channel)){}
 
+// 客户端类
 void OPSClient::PushNewOrder(const std::string& fileName){
 	std::vector<NewOrderRequest> requests;
 	readNewOrderRequest(fileName, requests);
+	// 注册报单请求处理
 	new AsyncClientCallPushNewOrder(std::move(requests), cq_, stub_);
 }
 
 void OPSClient::PushCancelOrder(const uint64_t& orderID){
 	CancelOrderRequest request=MakeCancelOrderRequest(orderID);
+	// 注册撤单请求处理
 	new AsyncClientCallPushCancelOrder(request, cq_, stub_);
 }
 
 void OPSClient::AsyncCompleteRpc(){
 	void* got_tag;
 	bool ok=false;
+	// 从完成队列中取出请求处理
 	while(cq_.Next(&got_tag, &ok)){
-		std::cout<<ok<<std::endl;
+		// 基类指针,根据子类执行的虚函数Proceed()
 		AbstractAsyncClientCall* call=static_cast<AbstractAsyncClientCall*>(got_tag);
 		call->Proceed(ok);
 	}
 }
 
 int main(int argc, char* argv[]){
-	OPSClient client(grpc::CreateChannel("localhost:50001", grpc::InsecureChannelCredentials()));
+	OPSClient client(grpc::CreateChannel("localhost:50002", grpc::InsecureChannelCredentials()));
 	std::thread thread_=std::thread(&OPSClient::AsyncCompleteRpc, &client);
 	// client.PushNewOrder(argv[1]);
 	std::cout<<"Please input operator and requests! usage: <New/ Cancel> <RequestsFile/ orderID>"<<std::endl;
@@ -143,7 +151,7 @@ int main(int argc, char* argv[]){
 			uint64_t orderID;
 			std::cin>>orderID;
 			client.PushCancelOrder(orderID);
-		}else break;
+		}
 	}
 	thread_.join();
 	return 0;

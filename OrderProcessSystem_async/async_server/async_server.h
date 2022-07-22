@@ -81,8 +81,6 @@ std::unordered_map<uint64_t, ServerAsyncReaderWriter<ExecutionReport, NewOrderRe
 class CallDataPushCancelOrder:public CommonCallData{
 private:
 	ServerAsyncResponseWriter<ExecutionReport> responder_;
-	CancelOrderRequest request_;
-	ExecutionReport report_;
 	
 public:
 	CallDataPushCancelOrder(OrderService::AsyncService* service, ServerCompletionQueue* cq, TradingMarket* tradingMarket);

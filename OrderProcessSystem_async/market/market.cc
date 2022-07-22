@@ -21,14 +21,11 @@ void TradingMarket::processNewOrder(const NewOrderRequest& request, std::vector<
 	// 创建订单
 	auto orderID=createOrder(request);
 	orderID_=orderID;
-	// 存储订单对应的stream
-	//orderID_stream[orderID]=stream;
 	// 输出订单创建成功的消息
 	report.set_stat(ExecutionReport::ORDER_ACCEPT);
 	report.set_orderid(orderID);
 	report.set_time(getTime());
 	reports.push_back(std::make_pair(orderID, report));
-	//stream->Write(report);
 	// 获取订单对应的股票ID
 	auto stockID=request.stockid();
 	// Sell
@@ -80,6 +77,7 @@ void TradingMarket::processCancelOrder(const CancelOrderRequest& request, Execut
 		report.set_errormessage(errorMessage);
 		return;	
 	}
+	// 获取订单及其信息
 	uint64_t orderID=request.orderid();
 	auto order=orders[orderID];
 	auto stockID=order.stockid();
@@ -92,8 +90,8 @@ void TradingMarket::processCancelOrder(const CancelOrderRequest& request, Execut
 			sell_buy_containers[stockID].sell.erase(orderID);
 		// 从订单容器中删除订单
 		deleteOrder(orderID);
-		// 删除订单及其对应的流
-		// orderID_stream.erase(orderID);
+		// 从用户订单集合中删除该订单
+		// clientID_orders[order.clientid()].erase(orderID);
 	}else{
 		// 对stockID的买订单集合加锁,作用域结束自动解锁
 		std::lock_guard<std::mutex> lg(*stock_mutex[stockID].second);
@@ -102,8 +100,8 @@ void TradingMarket::processCancelOrder(const CancelOrderRequest& request, Execut
 			sell_buy_containers[stockID].buy.erase(orderID);
 		// 从订单容器中删除订单
 		deleteOrder(orderID);
-		// 删除订单及其对应的流
-		// orderID_stream.erase(orderID);
+		// 从用户订单集合中删除该订单
+		// clientID_orders[order.clientid()].erase(orderID);
 	}
 	report.set_stat(ExecutionReport::CANCELED);
 	report.set_clientid(order.clientid());
@@ -265,7 +263,11 @@ uint64_t TradingMarket::createOrder(const NewOrderRequest& request){
 	std::lock_guard<std::mutex> lg(orderID_mutex);
 	// 为订单分配ID
 	uint64_t orderID=++id;
+	// 将订单存入订单集合中
 	orders[orderID]=request;
+	// 将订单ID存入用户集合中
+	// clientID_orders[request.clientid()].emplace(orderID);
+	// 获取订单对应的股票ID
 	std::string stockID=request.stockid();
 	// 为stockID分配锁
 	if(!stock_mutex.count(stockID)){
