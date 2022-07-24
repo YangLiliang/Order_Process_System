@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "proto";
+option java_outer_classname = "OPSProto";
+option objc_class_prefix = "OPS";
+
+package OPS;
+
+service OrderService {
+  rpc PushNewOrder (stream NewOrderRequest) returns (stream ExecutionReport) {}
+  rpc PushCancelOrder (CancelOrderRequest) returns (ExecutionReport) {}
+  rpc PushQueryOrder(QueryOrderRequest) returns (stream NewOrderRequest) {}
+}
+
+message NewOrderRequest {
+  enum OrderType{
+    LIMIT = 0;    //限价
+    MARKET = 1;  //市价
+  }
+
+  enum Direction{
+    SELL = 0; // 卖为0
+    BUY = 1;  // 买为1
+  }
+  // 客户ID
+  uint64 clientID = 1;
+
+  // 买卖方向
+  Direction direction = 2;
+
+  // 买卖股票ID
+  string stockID = 3;
+
+  // 订单数量
+  uint32 orderQty = 4;
+
+  // 报单价格
+  double price = 5;
+
+  // 订单类型
+  OrderType orderType = 6;
+
+  // 报单时间
+  string time = 7;
+
+}
+
+message CancelOrderRequest {
+  // 取消的订单ID
+  uint64 orderID = 1;
+  string time = 2;
+}
+
+message QueryOrderRequest{
+  // 查询的时间
+  string time = 1;
+}
+
+message ExecutionReport{
+  // 客户订单的响应状态
+  enum STAT{
+    ORDER_ACCEPT = 0;   // 订单接受
+    ORDER_REJECT = 1;   // 订单拒绝
+    FILL = 2;           // 订单成交
+    CANCELED = 3;       // 撤单成功
+    CANCEL_REJECT = 4;  // 撤单拒绝
+  }
+  // 订单状态
+  STAT stat = 1;
+
+  // 客户ID
+  uint64 clientID = 2;
+
+  // 订单ID
+  uint64 orderID = 3;
+
+  // 股票代码
+  string stockID = 4;
+
+  // 订单总量
+  uint32 orderQty = 5;
+
+  // 订单价格
+  double orderPrice = 6;
+
+  // 订单成交数量
+  uint32 fillQty = 7;
+
+  // 订单成交价格
+  double fillPrice = 8;
+
+  // 剩余待成交数量
+  uint32 leaveQty = 9;
+
+  string errorMessage = 10;
+
+  string time = 11;
+}
