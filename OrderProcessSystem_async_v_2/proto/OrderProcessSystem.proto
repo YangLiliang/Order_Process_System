@@ -10,7 +10,7 @@ package OPS;
 service OrderService {
   rpc PushNewOrder (stream NewOrderRequest) returns (stream ExecutionReport) {}
   rpc PushCancelOrder (CancelOrderRequest) returns (ExecutionReport) {}
-  rpc PushQueryOrder(QueryOrderRequest) returns (stream NewOrderRequest) {}
+  rpc PushQueryOrder(QueryOrderRequest) returns (stream OrderReport) {}
 }
 
 message NewOrderRequest {
@@ -96,4 +96,40 @@ message ExecutionReport{
   string errorMessage = 10;
 
   string time = 11;
+}
+
+message OrderReport {
+  enum OrderType{
+    LIMIT = 0;    //限价
+    MARKET = 1;  //市价
+  }
+
+  enum Direction{
+    SELL = 0; // 卖为0
+    BUY = 1;  // 买为1
+  }
+  // 订单ID
+  uint64 orderID = 1;
+
+  // 客户ID
+  uint64 clientID = 2;
+
+  // 买卖方向
+  Direction direction = 3;
+
+  // 买卖股票ID
+  string stockID = 4;
+
+  // 订单数量
+  uint32 orderQty = 5;
+
+  // 报单价格
+  double price = 6;
+
+  // 订单类型
+  OrderType orderType = 7;
+
+  // 报单时间
+  string time = 8;
+
 }

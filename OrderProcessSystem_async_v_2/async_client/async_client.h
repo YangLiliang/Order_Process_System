@@ -38,6 +38,7 @@ using OPS::NewOrderRequest;
 using OPS::CancelOrderRequest;
 using OPS::QueryOrderRequest;
 using OPS::ExecutionReport;
+using OPS::OrderReport;
 using OPS::OrderService;
 
 // 创建新订单请求
@@ -66,7 +67,7 @@ public:
 	Status status;
 	CallStatus callStatus;
 	ExecutionReport report_;
-	NewOrderRequest queryReport_;
+	OrderReport queryReport_;
 	virtual void Proceed(bool = true) = 0;
 };
 
@@ -94,7 +95,8 @@ public:
 // 查询订单类
 class AsyncClientCallPushQueryOrder:public AbstractAsyncClientCall{
 private:
-	std::unique_ptr< ClientAsyncReader<NewOrderRequest> > responder;
+	std::unique_ptr< ClientAsyncReader<OrderReport> > responder;
+	uint64_t reportsCounter;
 public:
 	AsyncClientCallPushQueryOrder(const QueryOrderRequest& request, CompletionQueue& cq_, std::unique_ptr<OrderService::Stub>& stub_);
 	virtual void Proceed(bool ok = true) override;

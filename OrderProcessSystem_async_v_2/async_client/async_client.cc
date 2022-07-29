@@ -116,7 +116,7 @@ void AsyncClientCallPushNewOrder::Proceed(bool ok){
 
 // 查询订单类
 AsyncClientCallPushQueryOrder::AsyncClientCallPushQueryOrder(const QueryOrderRequest& request, CompletionQueue& cq_, std::unique_ptr<OrderService::Stub>& stub_):
-	AbstractAsyncClientCall(){
+	AbstractAsyncClientCall(), reportsCounter(0){
 		responder = stub_->AsyncPushQueryOrder(&context, request, &cq_, (void*)this);
 		callStatus = PROCESS ;
 }
@@ -126,10 +126,16 @@ void AsyncClientCallPushQueryOrder::Proceed(bool ok){
 		if(!ok){
 			responder->Finish(&status, (void*)this);
 			callStatus = FINISH;
+			if(reportsCounter==0){
+				std::cout<<"无订单！"<<std::endl;
+			}
 			return ;
 		}
 		responder->Read(&queryReport_, (void*)this);
-		if(queryReport_.clientid()>0) printRequest(queryReport_);
+		if(queryReport_.clientid()>0) {
+			printReport(queryReport_);
+			reportsCounter++;
+		}
 	}
 	else if(callStatus == FINISH){
 			delete this;

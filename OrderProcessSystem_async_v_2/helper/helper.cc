@@ -61,10 +61,27 @@ void printReport(const ExecutionReport& report){
 	std::cout<<std::endl;
 }
 
+void printReport(const OrderReport& report){
+	std::cout<<"查询结果: "<<std::endl;
+	std::cout<<"	订单ID: "<<report.orderid()<<", "<<std::endl;
+	std::cout<<"	客户ID: "<<report.clientid()<<", "<<std::endl;
+	if(report.direction()==OrderReport::SELL) std::cout<<"	订单类型: [SELL]"<<", "<<std::endl;
+	else std::cout<<"	订单类型: [BUY]"<<", "<<std::endl;
+	std::cout<<"	股票ID: "<<report.stockid()<<", "<<std::endl;
+	std::cout<<"	订单数量: "<<report.orderqty()<<", "<<std::endl;
+	std::cout<<"	订单价格: "<<report.price()<<", "<<std::endl;
+	if(report.ordertype()==OrderReport::LIMIT) std::cout<<"	价格类型: [LIMIT]"<<", "<<std::endl;
+	else std::cout<<"	价格类型: [CURRENT]"<<", "<<std::endl;
+	std::cout<<"	报单时间: "<<report.time();
+	std::cout<<std::endl;
+}
+
 // 判断订单的合法性
 bool checkRequest(const NewOrderRequest& request, std::string& errorMessage){
 	if(request.clientid()<=0){
 		errorMessage="Error: ClientID is illegal!";
+	}else if(request.stockid().size()<=0){
+		errorMessage="Error: StockID is illegal!";
 	}else if(request.direction()!=NewOrderRequest::SELL&&request.direction()!=NewOrderRequest::BUY){
 		errorMessage="Error: Order direction is illegal!";
 	}else if(request.orderqty()<=0){
@@ -117,4 +134,20 @@ void initReport(ExecutionReport& report, const CancelOrderRequest& request){
 	report.set_errormessage("");
 	report.set_time("");
 }
+// 初始化应答
+void initReport(OrderReport& report, const NewOrderRequest& request, const uint64_t& orderID){
+	report.set_orderid(orderID);
+	if(request.ordertype()==NewOrderRequest::LIMIT) report.set_ordertype(OrderReport::LIMIT);
+	else report.set_ordertype(OrderReport::MARKET);
+	
+	if(request.direction()==NewOrderRequest::SELL) report.set_direction(OrderReport::SELL);
+	else report.set_direction(OrderReport::BUY);
+	
+	report.set_clientid(request.clientid());
+	report.set_stockid(request.stockid());
+	report.set_orderqty(request.orderqty());
+	report.set_price(request.price());
+	report.set_time(request.time());
+}
+
 #endif 

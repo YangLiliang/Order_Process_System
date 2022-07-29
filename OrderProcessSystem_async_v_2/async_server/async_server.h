@@ -37,6 +37,7 @@ using OPS::NewOrderRequest;
 using OPS::CancelOrderRequest;
 using OPS::QueryOrderRequest;
 using OPS::ExecutionReport;
+using OPS::OrderReport;
 using OPS::OrderService;
 
 // 基类
@@ -92,10 +93,10 @@ public:
 // 处理查询订单
 class CallDataPushQueryOrder:public CommonCallData{
 private:
-	ServerAsyncWriter<NewOrderRequest> responder_;
+	ServerAsyncWriter<OrderReport> responder_;
 	bool new_responder_created_;
 	uint32_t reportsCounter_;
-	std::vector<NewOrderRequest> queryOrderReports_;
+	std::vector<OrderReport> queryOrderReports_;
 public:
 	CallDataPushQueryOrder(OrderService::AsyncService*, ServerCompletionQueue*, TradingMarket*);
 	virtual void Proceed(bool =true) override;
